@@ -24,9 +24,6 @@ def dprint(message):
         dfh.write(message + "\n")
         dfh.close()
 
-def vprint(message):
-    if VERBOSE:
-        print(message)
 def api_login(qumulo, user, password, token):
     headers = {'Content-Type': 'application/json'}
     if not token:
@@ -235,7 +232,6 @@ if __name__ == "__main__":
             job_index[j['initial_path']] = j['id']
         pp.pprint(job_index.keys())
         for job_candidate in job_list:
-            print("CAND: " + job_candidate)
             if job_candidate in job_index.keys():
                 print("Job already running on " + job_candidate)
                 continue
