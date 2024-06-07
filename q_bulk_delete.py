@@ -69,7 +69,6 @@ def qumulo_get(addr, api):
     if res.status_code == 200:
         dprint("RESULTS: " + str(res.content))
         results = json.loads(res.content.decode('utf-8'))
-#        pp.pprint("RES [" + api + " ] : " + str(results))
         return(results)
     elif res.status_code == 404:
         return("404")
@@ -147,8 +146,6 @@ def get_node_addr(addr_list):
 
 def get_del_job_node(jobs, MAX_JOBS):
     sorted_jobs = list(sorted(jobs.items(), key=lambda x:len(x[1])))
-    print("SORTED_JOBS: " + str(sorted_jobs))
-    print("SHORTEST JOB QUEUE: " + str(len(sorted_jobs[0][1])) + " : " + str(MAX_JOBS))
     if len(sorted_jobs[0][1]) < MAX_JOBS:
         return(sorted_jobs[0][0])
     else:
@@ -164,39 +161,15 @@ def tree_delete_jobs_list(addr):
 def update_node_jobs(node, jobs):
     j_id_list = []
     j_list = tree_delete_jobs_list(node)
-#    print("J_LIST: " + str(j_list))
     for j in j_list['jobs']:
-#        print("J: " + str(j))
         j_id_list.append(j['id'])
-    print("ID_LIST: " + str(j_id_list))
-    pp.pprint(jobs)
+#    pp.pprint(jobs)
     for n in jobs:
         for jid in jobs[n]:
-            print("JID: " + str(jid))
             if jid not in j_id_list:
-                print("** DELETED " + str(jid) + " from " + str(n))
+                dprint("** DELETED " + str(jid) + " from " + str(n))
                 jobs[n].remove(jid)
     return(jobs)
-
-'''
-    for j in j_id_list:
-        print("J: " + str(j))
-        for n in jobs:
-           print("N: " + str(n))
-           print("JN: " + str(jobs[n]))
-           for i, ji in enumerate(jobs[n]):
-             print(type(jobs[n][i]))
-             print("JNI: " + str(jobs[n][i]))
-             if jobs[n][i] not in j_id_list:
-                print(type(j['id']))
-                print("JID: " + str(j['id']))
-                print("J2: " + str(jobs[n]))
- #               jobs[n].remove(j['id'])
-                del jobs[n][i]
-                print("**Deleted " + j['id'] + " from " + str(n))
-
-    return(jobs)
-'''
 
 def get_name_from_addr(addr, addr_list):
     for x in addr_list:
@@ -246,8 +219,6 @@ if __name__ == "__main__":
     dprint(str(net_data.content))
     net_info = json.loads(net_data.content.decode('utf-8'))
     node_count = len(net_info)
-    MAX_JOBS = node_count * MAX_JOBS_PER_NODE
-    print("MAX_JOBS: " + str(MAX_JOBS))
     for node in net_info:
         if node['interface_details']['cable_status'] == "CONNECTED" and node['interface_details'][
             'interface_status'] == "UP":
@@ -285,12 +256,10 @@ if __name__ == "__main__":
                 done = True
         except:
             done = True
-    print(addr_list)
+#    print(addr_list)
     while len(job_queue) > 0 or tree_delete_jobs(addr_list[get_node_addr(addr_list)]['address']) > 0:
-        print(job_queue)
         if len(job_queue) > 0:
             d_node = get_del_job_node(node_jobs, MAX_JOBS_PER_NODE)
-            print(d_node)
             if d_node != '':
                 job_dir = job_queue.pop()
                 print("Deleting " + dir_list[job_dir]['name'] + " on " + get_name_from_addr(d_node, addr_list))
@@ -305,7 +274,6 @@ if __name__ == "__main__":
             j = tree_delete_jobs(addr_list[get_node_addr(addr_list)]['address'])
             print("Waiting for " + str(j) + " jobs to complete")
         node_jobs = update_node_jobs(addr_list[get_node_addr(addr_list)]['address'], node_jobs)
-        print("NODE_JOBS: " + str(node_jobs))
         time.sleep(10)
     print("FINAL JOB QUEUE: " + str(job_queue))
     print("FINAL_TREE_DELETE JOBS: " + str(tree_delete_jobs_list(addr_list[get_node_addr(addr_list)]['address'])))
