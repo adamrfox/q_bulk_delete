@@ -191,9 +191,10 @@ if __name__ == "__main__":
     job_list = {}
     job_queue = []
     node_jobs = {}
+    SLEEP_INTERVAL = 30
 
-    optlist, args = getopt.getopt(sys.argv[1:], 'hDt:c:vj:', ['help', 'DEBUG', 'token=', 'creds',
-                                                              'verbose', 'jobs='])
+    optlist, args = getopt.getopt(sys.argv[1:], 'hDt:c:vj:i:', ['help', 'DEBUG', 'token=', 'creds',
+                                                              'verbose', 'jobs=', '-interval='])
     for opt, a in optlist:
         if opt in ['-h', '--help']:
             usage()
@@ -208,6 +209,8 @@ if __name__ == "__main__":
             (user, password) = a.split(':')
         if opt in ('-j', '--jobs'):
             MAX_JOBS_PER_NODE = int(a)
+        if opt in ('-i', '--interval'):
+            SLEEP_INTERVAL - int(a)
     try:
         (qumulo, path) = args[0].split(':')
     except:
@@ -274,6 +277,6 @@ if __name__ == "__main__":
             j = tree_delete_jobs(addr_list[get_node_addr(addr_list)]['address'])
             print("Waiting for " + str(j) + " jobs to complete")
         node_jobs = update_node_jobs(addr_list[get_node_addr(addr_list)]['address'], node_jobs)
-        time.sleep(10)
+        time.sleep(SLEEP_INTERVAL)
     print("FINAL JOB QUEUE: " + str(job_queue))
     print("FINAL_TREE_DELETE JOBS: " + str(tree_delete_jobs_list(addr_list[get_node_addr(addr_list)]['address'])))
