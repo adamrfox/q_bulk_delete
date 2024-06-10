@@ -6,6 +6,7 @@ import getpass
 import requests
 import urllib.parse
 import json
+import os
 import time
 import urllib3
 urllib3.disable_warnings()
@@ -14,7 +15,16 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 def usage():
-    print("Usage Goes here!")
+    sys.stderr.write("Usage q_bulk_delete.py [-hD] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo path\n")
+    sys.stderr.write("-h | --help : Display usage help\n")
+    sys.stderr.write("-D | --DEBUG : Generate debug data\n")
+    sys.stderr.write("-c | --creds : Specify cluster credentials [user:password]\n")
+    sys.stderr.write("-t | --token : Specify access token\n")
+    sys.stderr.write("-f | --token-file : Specify access token file\n")
+    sys.stderr.write("-j | --jobs: Specify maximium jobs per node [def: 10]\n")
+    sys.stderr.write("-i | --interval : Specify wait time between output lines in seconds [def: 30]\n")
+    sys.stderr.write("qumulo : Name or IP of a Qumulo node\n")
+    sys.stderr.write("path : Starting path for tree deletes\n")
     exit(0)
 
 def dprint(message):
@@ -177,9 +187,19 @@ def get_name_from_addr(addr, addr_list):
             return(x['name'])
     return('')
 
+def get_token_from_file(file):
+    with open(file, 'r') as fp:
+        tf = fp.read().strip()
+    fp.close()
+    t_data = json.loads(tf)
+    dprint(t_data['bearer_token'])
+    return(t_data['bearer_token'])
+
 if __name__ == "__main__":
     DEBUG = False
     VERBOSE = False
+    default_token_file = ".qfsd_cred"
+    token_file = ""
     MAX_JOBS_PER_NODE = 10
     token = ""
     user = ""
@@ -193,16 +213,13 @@ if __name__ == "__main__":
     node_jobs = {}
     SLEEP_INTERVAL = 30
 
-    optlist, args = getopt.getopt(sys.argv[1:], 'hDt:c:vj:i:', ['help', 'DEBUG', 'token=', 'creds',
-                                                              'verbose', 'jobs=', '-interval='])
+    optlist, args = getopt.getopt(sys.argv[1:], 'hDt:c:vj:i:f:', ['help', 'DEBUG', 'token=', 'creds',
+                                                              'jobs=', 'interval=', 'token-file='])
     for opt, a in optlist:
         if opt in ['-h', '--help']:
             usage()
         if opt in ('-D', '--DEBUG'):
             DEBUG = True
-            VERBOSE = True
-        if opt in ('-v', '--verbose'):
-            VERBOSE = True
         if opt in ('-t', '--token'):
             token = a
         if opt in ('-c', '--creds'):
@@ -211,10 +228,17 @@ if __name__ == "__main__":
             MAX_JOBS_PER_NODE = int(a)
         if opt in ('-i', '--interval'):
             SLEEP_INTERVAL - int(a)
+        if opt in ('-f', '--token-file'):
+            token_file = a
     try:
         (qumulo, path) = args[0].split(':')
     except:
         usage()
+    if not user and not token:
+        if not token_file:
+            token_file = default_token_file
+        if os.path.isfile(token_file):
+            token = get_token_from_file(token_file)
     auth = api_login(qumulo,user,password,token)
     dprint(str(auth))
     net_data = requests.get('https://' + qumulo + '/v2/network/interfaces/1/status/', headers=auth,
@@ -278,5 +302,5 @@ if __name__ == "__main__":
             print("Waiting for " + str(j) + " jobs to complete")
         node_jobs = update_node_jobs(addr_list[get_node_addr(addr_list)]['address'], node_jobs)
         time.sleep(SLEEP_INTERVAL)
-    print("FINAL JOB QUEUE: " + str(job_queue))
-    print("FINAL_TREE_DELETE JOBS: " + str(tree_delete_jobs_list(addr_list[get_node_addr(addr_list)]['address'])))
+    dprint("FINAL JOB QUEUE: " + str(job_queue))
+    dprint("FINAL_TREE_DELETE JOBS: " + str(tree_delete_jobs_list(addr_list[get_node_addr(addr_list)]['address'])))
