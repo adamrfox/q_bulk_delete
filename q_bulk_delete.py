@@ -15,9 +15,10 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 def usage():
-    sys.stderr.write("Usage q_bulk_delete.py [-hD] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo path\n")
+    sys.stderr.write("Usage q_bulk_delete.py [-hDr] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo path\n")
     sys.stderr.write("-h | --help : Display usage help\n")
     sys.stderr.write("-D | --DEBUG : Generate debug data\n")
+    sys.stderr.write("-r | --delete-root : Delete the root path specified on the command line when finished.\n")
     sys.stderr.write("-c | --creds : Specify cluster credentials [user:password]\n")
     sys.stderr.write("-t | --token : Specify access token\n")
     sys.stderr.write("-f | --token-file : Specify access token file\n")
@@ -212,8 +213,9 @@ if __name__ == "__main__":
     job_queue = []
     node_jobs = {}
     SLEEP_INTERVAL = 30
+    DELETE_ROOT = False
 
-    optlist, args = getopt.getopt(sys.argv[1:], 'hDt:c:vj:i:f:', ['help', 'DEBUG', 'token=', 'creds',
+    optlist, args = getopt.getopt(sys.argv[1:], 'hDrt:c:vj:i:f:', ['help', 'DEBUG', 'token=', 'delete-root', 'creds',
                                                               'jobs=', 'interval=', 'token-file='])
     for opt, a in optlist:
         if opt in ['-h', '--help']:
@@ -222,6 +224,8 @@ if __name__ == "__main__":
             DEBUG = True
         if opt in ('-t', '--token'):
             token = a
+        if opt in ('-r', '--delete-root'):
+            DELETE_ROOT = True
         if opt in ('-c', '--creds'):
             (user, password) = a.split(':')
         if opt in ('-j', '--jobs'):
@@ -233,6 +237,7 @@ if __name__ == "__main__":
     try:
         (qumulo, path) = args[0].split(':')
     except:
+        dprint('ARGS: ' + args[0])
         usage()
     if not user and not token:
         if not token_file:
@@ -247,8 +252,7 @@ if __name__ == "__main__":
     net_info = json.loads(net_data.content.decode('utf-8'))
     node_count = len(net_info)
     for node in net_info:
-        if node['interface_details']['cable_status'] == "CONNECTED" and node['interface_details'][
-            'interface_status'] == "UP":
+        if node['interface_details']['cable_status'] == "CONNECTED" and node['interface_details']['interface_status'] == "UP":
             for ints in node['network_statuses']:
                 addr_list.append({'name': node['node_name'], 'address': ints['address']})
                 node_jobs[ints['address']] = []
@@ -304,3 +308,7 @@ if __name__ == "__main__":
         time.sleep(SLEEP_INTERVAL)
     dprint("FINAL JOB QUEUE: " + str(job_queue))
     dprint("FINAL_TREE_DELETE JOBS: " + str(tree_delete_jobs_list(addr_list[get_node_addr(addr_list)]['address'])))
+    if DELETE_ROOT:
+        print("Deleting " + path)
+        payload = json.dumps({'id': top_id})
+        qumulo_post(qumulo, '/v1/tree-delete/jobs/', payload)
