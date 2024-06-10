@@ -4,9 +4,10 @@ A Project to do parallel tree deletes on Qumulo
 This goal of this project is to automate runnign Qumulo tree delete jobs on a tree.  The main script takes a path, finds the directories under that path, then starts up a tree delete job on each of the top-level subdirectories of the given path.  The idea is to get parallel tree delete jobs running to increase the speed of a very wide tree.  By default it follows the recommendation of no more than 10 tree delete jobs per node, but that value can be changed by the user.  In addition, I included a utlitiy script to act as a front end to the tree delete APIs for simplicity purposes.  It allows the user to list running tree delete jobs, abort tree delete jobs, and start new tree delete jobs.  The usage of the script is below
 
 <PRE>
-Usage q_bulk_delete.py [-hD] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo path
+Usage q_bulk_delete.py [-hDr] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo path
 -h | --help : Display usage help
 -D | --DEBUG : Generate debug data
+-r | --delete-root : Delete the root path specified on the command line when finished.
 -c | --creds : Specify cluster credentials [user:password]
 -t | --token : Specify access token
 -f | --token-file : Specify access token file
@@ -14,6 +15,7 @@ Usage q_bulk_delete.py [-hD] [-c creds] [-t token] [-f token_file] [-j jobs] [-i
 -i | --interval : Specify wait time between output lines in seconds [def: 30]
 qumulo : Name or IP of a Qumulo node
 path : Starting path for tree deletes
+
 
 Usage: treedel.py [-hDT] [-c creds] [-t token] [-f token-file] qumulo cmd [args]
 -h | --help : Print usage message
