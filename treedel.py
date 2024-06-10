@@ -15,7 +15,19 @@ pp = pprint.PrettyPrinter(indent=4)
 import re
 
 def usage():
-    print("Usage Goes here!")
+    sys.stderr.write("Usage: treedel.py [-hDT] [-c creds] [-t token] [-f token-file] qumulo cmd [args]\n")
+    sys.stderr.write("-h | --help : Print usage message\n")
+    sys.stderr.write("-D | --DEBUG : Generate debug information\n")
+    sys.stderr.write("-T | --TEST : Test mode.  Used with 'start' command.  Only show what delete jobs would be run\n")
+    sys.stderr.write("-c | --creds : Specify cluster credentials [user:password]\n")
+    sys.stderr.write("-t | --token : Specify access token\n")
+    sys.stderr.write("-f | --token-file : Specify access token file\n")
+    sys.stderr.write("qumulo : Name of IP of a qumulo node\n")
+    sys.stderr.write("cmd : Specify a command.  Supported commands are 'list', 'abort', 'start'\n")
+    sys.stderr.write("args:")
+    sys.stderr.write("\tlist  : Optionally specify a path or regular expression to dispaly.  [def: show all jobs]\n")
+    sys.stderr.write("\tabort : Specify a comma separated list of paths to abort or use 'all' to abort all jobs\n")
+    sys.stderr.write("\tstart : Specify a comma separated list of paths to start a tree delete job\n")
     exit(0)
 
 def dprint(message):
