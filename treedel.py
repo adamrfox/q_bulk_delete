@@ -148,6 +148,7 @@ def get_token_from_file(file):
     return(t_data['bearer_token'])
 
 if __name__ == "__main__":
+    DEBUG = False
     default_token_file = ".qfsd_cred"
     token_file = ""
     token = ""
@@ -230,15 +231,16 @@ if __name__ == "__main__":
         job_index = {}
         for j in running_jobs['jobs']:
             job_index[j['initial_path']] = j['id']
-        pp.pprint(job_index.keys())
         for job_candidate in job_list:
+            if not job_candidate.endswith('/'):
+                job_candidate = job_candidate + '/'
             if job_candidate in job_index.keys():
                 print("Job already running on " + job_candidate)
                 continue
             else:
                 print("Deleting " + job_candidate)
                 if not TEST:
-                    payload = json.dumps({'id': job_index[job_candidate]})
-                    qumulo_post(qumulo, '/v1/tree-delete/jobs', payload)
+                    payload = json.dumps({'id': job_candidate})
+                    qumulo_post(qumulo, '/v1/tree-delete/jobs/', payload)
         exit(0)
 
