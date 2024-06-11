@@ -15,7 +15,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 def usage():
-    sys.stderr.write("Usage q_bulk_delete.py [-hDr] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo path\n")
+    sys.stderr.write("Usage q_bulk_delete.py [-hDr] [-c creds] [-t token] [-f token_file] [-j jobs] [-i interval] qumulo:path\n")
     sys.stderr.write("-h | --help : Display usage help\n")
     sys.stderr.write("-D | --DEBUG : Generate debug data\n")
     sys.stderr.write("-r | --delete-root : Delete the root path specified on the command line when finished.\n")
