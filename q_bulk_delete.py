@@ -231,7 +231,7 @@ if __name__ == "__main__":
         if opt in ('-j', '--jobs'):
             MAX_JOBS_PER_NODE = int(a)
         if opt in ('-i', '--interval'):
-            SLEEP_INTERVAL - int(a)
+            SLEEP_INTERVAL = int(a)
         if opt in ('-f', '--token-file'):
             token_file = a
     try:
