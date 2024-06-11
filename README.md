@@ -24,6 +24,11 @@ Usage: treedel.py [-hDT] [-c creds] [-t token] [-f token-file] qumulo cmd [args]
 -c | --creds : Specify cluster credentials [user:password]
 -t | --token : Specify access token
 -f | --token-file : Specify access token file
+qumulo : Name of IP of a qumulo node
+cmd : Specify a command.  Supported commands are 'list', 'abort', 'start'
+args:	list  : Optionally specify a path or regular expression to dispaly.  [def: show all jobs]
+	abort : Specify a comma separated list of paths to abort or use 'all' to abort all jobs
+	start : Specify a comma separated list of paths to start a tree delete job
 </PRE>
 
 Authentication
