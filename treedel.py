@@ -182,7 +182,7 @@ if __name__ == "__main__":
             token = a
         if opt in ('-c', '--creds'):
             (user, password) = a.split(':')
-        if opt in ('-f', '--token_file'):
+        if opt in ('-f', '--token-file'):
             token_file = a
         if opt in ('-T', '--TEST'):
             TEST = True
